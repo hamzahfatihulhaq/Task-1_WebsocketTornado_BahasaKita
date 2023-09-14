@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Audio</title>
+</head>
+<body>
+    <h1>Upload Audio</h1>
+    <form action="/" method="post" enctype="multipart/form-data" onsubmit="sendAudio(event)">
+        
+        <label for="audio">Audio File:</label>
+        <input type="file" id="audio" name="audio_data" required><br><br>
+        
+        <button type="submit">Upload</button>
+    </form>
+
+    <hr>
+    <form action="/" method="get" onsubmit="sendId(event)">
+        <label>idAudio: <input type="text" id="audioId" autocomplete="off" /></label>
+        <button>Send</button>
+    </form>
+    <ul id='messages'></ul>
+    <script>
+        // console.log("JWT Token:", getCookie("jwtToken"));
+
+        var ws = new WebSocket("ws://localhost:8888/websocket");
+
+        ws.onmessage = function(event) {
+            // Handle pesan WebSocket lainnya
+            var messages = document.getElementById('messages')
+            var message = document.createElement('li')
+            var content = document.createTextNode(event.data)
+            message.appendChild(content)
+            messages.appendChild(message)   
+        };
+
+        window.addEventListener("beforeunload", function() {
+            ws.close();
+        });
+
+        function sendAudio(event) {
+            event.preventDefault();
+            var input = document.getElementById("audio");
+            var file = input.files[0];
+            
+            var formData = new FormData();
+            formData.append("audio_data", file);
+            
+            fetch("/audio/", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "Authorization": "Bearer " + getCookie("jwtToken")
+                }
+            }).then(response => response.json())
+            .then(data => ws.send(data.message))
+            .catch(error => console.error("Error:", error));
+
+            input.value = ''
+        }
+
+        function sendId(event) {
+            event.preventDefault();
+            var input = document.getElementById("audioId");
+
+            // Menggunakan sendAuthenticatedRequest untuk mengirim permintaan
+            fetch("/get_audio/" + input.value, {
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + getCookie("jwtToken")
+                }
+            }).then(response => response.json())
+            .then(data => {
+                var audioMetadata = data.metadata;
+                ws.send(JSON.stringify(audioMetadata));  // Mengirim metadata audio sebagai pesan
+            })
+            .catch(error => console.error("Error:", error));
+            input.value = ''
+        }
+
+        // Fungsi untuk mendapatkan nilai cookie berdasarkan nama
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+
+    </script>
+</body>
+</html>

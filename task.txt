@@ -1,0 +1,4 @@
+audio, websocket per 3200 dengan encode base 64. 3 state pengiriman
+1. audio start metadata audo
+2. audio strim chank audio
+3. audio stop untuk mengakri, ketika stop disimpan kedalam folder
