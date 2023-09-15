@@ -27,31 +27,35 @@
             };
 
             fetch("/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
                 body: JSON.stringify(data)
             }).then(response => response.json())
             .then(data => {
-                // console.log(data.token);
+                // Store the JWT token in a cookie
                 if (data.error) {
                     alert(data.error);
                 } else {
-                    fetch("/", {
-                        method: "GET",
-                        headers: {
-                            "Authorization": "Bearer " + data.token
-                        }
-                    }).then(response => {
-                        // Simpan token dalam cookie
-                        document.cookie = `jwtToken=${data.token}; path=/`;
-                        // console.log(document.cookie)
-                        // Redirect ke halaman utama (index.html)
-                        
-                        iframe.contentWindow.postMessage(data.token, "http://localhost:8888/");
-                    })
-                    
+                    document.cookie = `jwtToken=${data.token}; path=/`;
+                    // fetch("/", {
+                    //     method: "GET",
+                    //     headers:  {
+                    //         "Authorization": "Bearer " + data.token
+                    //     }
+                    // }).then(response => {
+                    //     // Lakukan pengalihan ke halaman baru setelah mendapatkan respons
+                    //     if (response.ok) {
+                    //         window.location.href = "/";
+                    //         // console.log(response)
+                    //     } else {
+                    //         // Handle kesalahan lain jika diperlukan
+                    //         alert("Failed to load the new page.");
+                    //     }
+                    // });
+
+                    window.location.href = "/";
                 }
             })
             .catch(error => console.error("Error:", error));

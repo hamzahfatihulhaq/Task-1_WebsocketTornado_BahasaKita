@@ -5,6 +5,9 @@ import os
 def encode_audio():
     try:
         upload_folder = "Uploads"
+        if not os.listdir(upload_folder):
+            return {"message": "No audio files to encode."}
+        
         audio_files = [f for f in os.listdir(upload_folder) if os.path.isfile(os.path.join(upload_folder, f))]
 
         for audio_file in audio_files:

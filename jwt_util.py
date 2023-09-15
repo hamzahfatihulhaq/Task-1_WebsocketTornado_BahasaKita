@@ -1,12 +1,25 @@
 import tornado.web
 import tornado.ioloop
 from tornado.web import HTTPError
-from decouple import config
 import jwt
 import json
 from datetime import datetime
 
+from decouple import config
 SECRET_KEY = config('SECRET_KEY')
+
+def verify_jwt(token):
+    try:
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        # print(decoded)
+        return decoded, "Success"
+  
+    except jwt.ExpiredSignatureError:
+        # Token telah kedaluwarsa
+        return None, "ExpiredSignature"
+    except jwt.InvalidTokenError:
+        # Token tidak valid
+        return None, "InvalidToken"
 
 def check_jwt_expired(jwt_token):
     try:

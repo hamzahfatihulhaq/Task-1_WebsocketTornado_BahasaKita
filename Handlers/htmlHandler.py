@@ -1,17 +1,18 @@
 import tornado.web
-from jwt_util import jwt_required
+from jwt_util import jwt_required,verify_jwt
 
 class HTMLHandler(tornado.web.RequestHandler):
-    # @jwt_required
-    async def get(self):
+    def initialize(self) :
         # Ambil token dari cookie
-        jwt_token = self.get_cookie("jwtToken")
-        
-        # Jika ada token JWT, tambahkan header Authorization
-        if jwt_token:
-            self.set_header("Authorization", f"Bearer {jwt_token}")
-            
-        # Baca file HTML dan kirimkan sebagai respons
-        with open("index.html", "r") as file:
-            html_content = file.read()
-            self.write(html_content)
+        self._jwt_token = self.get_cookie("jwtToken")
+
+    async def get(self):
+        user_info = verify_jwt(self._jwt_token)
+        # print(user_info[0])
+        if not user_info[0]:
+            self.write({"error": user_info[1]})
+        else:
+            self.user_info = user_info  
+            with open("index.html", "r") as file:
+                html_content = file.read()
+                self.write(html_content)

@@ -8,8 +8,10 @@
 <body>
     <h1>Upload Audio</h1>
     <form action="/" method="post" enctype="multipart/form-data" onsubmit="sendAudio(event)">
+        
         <label for="audio">Audio File:</label>
         <input type="file" id="audio" name="audio_data" required><br><br>
+        
         <button type="submit">Upload</button>
     </form>
 
@@ -20,12 +22,9 @@
     </form>
     <ul id='messages'></ul>
     <script>
-        var jwtToken = getCookie("jwtToken");
-        console.log("Get Cookie:", jwtToken)
-        // var ws = new WebSocket("ws://localhost:8888/websocket", ["Authorization", "Bearer " + jwtToken]);
-        var ws = new WebSocket(`ws://localhost:8888/websocket/${jwtToken}`);
-        // var ws = new WebSocket("ws://localhost:8888/websocket");
-        console.log(ws)
+        // console.log("JWT Token:", getCookie("jwtToken"));
+
+        var ws = new WebSocket("ws://localhost:8888/websocket");
 
         ws.onmessage = function(event) {
             // Handle pesan WebSocket lainnya
@@ -73,12 +72,8 @@
                 }
             }).then(response => response.json())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    var audioMetadata = data.metadata;
-                    ws.send(JSON.stringify(audioMetadata));  // Mengirim metadata audio sebagai pesan
-                }
+                var audioMetadata = data.metadata;
+                ws.send(JSON.stringify(audioMetadata));  // Mengirim metadata audio sebagai pesan
             })
             .catch(error => console.error("Error:", error));
             input.value = ''

@@ -21,7 +21,7 @@ def make_app():
         (r"/audio/", TodoAudios),
         (r"/register", RegisterHandler,  {"users": users}),
         (r"/login", LoginHandler,  {"users": users, "secret_key": secret_key}),
-        (r"/websocket", AudioWebSocketHandler),
+        (r"/websocket/([^/]+)", AudioWebSocketHandler),
     ],
     debug=True,
     autoreload=True,
